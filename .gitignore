@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Secrets and local machine config
+.env
+.env.*
+!.env.example
+.vscode/
+.sixth/
+
+# OS/editor noise
+Thumbs.db
+.DS_Store
+
+# Large/generated data
+data/raw/
+data/processed/
+data/embeddings/
+
+# Experiment/runtime outputs
+mlflow/
+*.log
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+

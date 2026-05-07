@@ -1,0 +1,14 @@
+{
+  "xgboost": {
+    "accuracy": 0.9985231112513318,
+    "macro_f1": 0.42832509516411893,
+    "macro_auc": 0.9911613614593225
+  },
+  "gnn": {
+    "accuracy": 0.9998552490319779,
+    "macro_f1": 0.5499638093476434,
+    "auc": 0.9427257373786115,
+    "severity_mae": 0.4149034321308136
+  },
+  "recommendation": "XGBoost as primary (higher AUC, faster inference, SHAP explainability). GNN as secondary for novel/unseen drug pairs via graph neighbourhood."
+}

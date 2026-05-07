@@ -1,0 +1,61 @@
+# Drug Interaction Watchdog dependencies
+#
+# Recommended interpreter:
+#   Python 3.11.x
+#
+# Install:
+#   pip install -r requirements.txt
+
+# Core data
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==16.0.0
+
+# ML / embeddings
+torch==2.3.0
+transformers==4.41.2
+sentence-transformers==3.0.1
+tokenizers==0.19.1
+huggingface-hub==0.23.4
+
+# Vector stores
+faiss-cpu==1.8.0; platform_system != "Windows"
+chromadb==0.5.3
+
+# Database
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.30
+alembic>=1.13,<2.0
+
+# API
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+pydantic>=2.8,<3.0
+
+# Environment
+python-dotenv==1.0.1
+
+# HTTP
+requests==2.32.3
+urllib3==2.2.1
+
+# Utilities
+tqdm==4.66.4
+scikit-learn==1.5.0
+scipy==1.13.1
+
+# Config / output
+pyyaml==6.0.1
+rich==13.7.1
+
+# Test tooling
+pytest>=8.3,<9.0
+httpx>=0.27,<1.0
+
+#ML
+xgboost
+
+#other
+shap
+matplotlib
+scikit-learn
