@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# No pytest step: tests/ currently holds only empty placeholder files.
+# Add a pytest job here once those are filled in.
+
+jobs:
+  python:
+    name: Python compile check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Byte-compiles every module without installing the ML stack
+      # (torch, transformers, chromadb) — catches syntax errors in
+      # seconds instead of a multi-gigabyte dependency install.
+      - name: Byte-compile all packages
+        run: python -m compileall -q agents api rag ml ingestion
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # supabase.ts calls createClient at module scope, which throws on an
+      # empty URL during static generation, so the build needs these set.
+      # Placeholders only — no network calls happen at build time.
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
