@@ -269,19 +269,31 @@ class RAGRetrievalAgent:
     @staticmethod
     def _load_phase3_pipeline() -> Any | None:
         search_paths = [
+            "rag.rag_pipeline",          # actual location in this repo
             "rag_pipeline",
             "phase3.rag_pipeline",
             "src.phase3.rag_pipeline",
             "drug_watchdog.phase3.rag_pipeline",
         ]
+        failures: list[str] = []
         for path in search_paths:
             try:
                 mod = importlib.import_module(path)
                 if hasattr(mod, "retrieve"):
+                    log.info("Phase 3 RAG pipeline loaded from %s", path)
                     return mod
-                log.debug("Module %s found but has no retrieve() function", path)
-            except ImportError:
-                continue
+                failures.append(f"{path}: imported but exposes no retrieve()")
+            except Exception as exc:
+                # Catch broadly: a missing heavy dependency or a failed model
+                # load should degrade to the static library, not kill the agent.
+                failures.append(f"{path}: {type(exc).__name__}: {exc}")
+
+        # Logged at WARNING, not swallowed — silent fallback here previously
+        # made the static library look like real retrieval.
+        log.warning(
+            "Phase 3 RAG pipeline unavailable - using static evidence library. Tried: %s",
+            " | ".join(failures),
+        )
         return None
 
     # ── Public API ────────────────────────────────────────────────────────────
