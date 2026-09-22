@@ -1,0 +1,37 @@
+{
+  "warfarin": {
+    "rxcui": "11289",
+    "terms": [
+      "warfarin",
+      "Coumadin",
+      "Jantoven",
+      "warfarin sodium",
+      "warfarin potassium",
+      "warfarin sodium 1 MG Oral Tablet [Coumadin]",
+      "warfarin sodium 1 MG Oral Tablet [Jantoven]",
+      "warfarin sodium 10 MG Oral Tablet [Coumadin]",
+      "warfarin sodium 10 MG Oral Tablet [Jantoven]",
+      "warfarin sodium 2 MG Oral Tablet [Coumadin]",
+      "warfarin sodium 2 MG Oral Tablet [Jantoven]",
+      "warfarin sodium 2.5 MG Oral Tablet [Coumadin]"
+    ]
+  },
+  "aspirin": {
+    "rxcui": "1191",
+    "terms": [
+      "aspirin",
+      "Pamprin Max Formula",
+      "Stanback Headache Powder Reformulated Jan 2011",
+      "BC Arthritis",
+      "BC Original Formula",
+      "Arthriten Inflammatory Pain",
+      "Bromo Seltzer Antacid Pain Reliever",
+      "Exaprin",
+      "Backaid IPF",
+      "Ascomp",
+      "Excedrin PM Triple Action",
+      "Aspi-Cor",
+      "Durlaza"
+    ]
+  }
+}
