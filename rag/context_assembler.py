@@ -32,9 +32,14 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Any
 
-from citation_tracker import CitationIndex as DedicatedCitationIndex
-from reranker import RankedChunk, RerankedResult
-from retriever import RetrievedChunk
+try:
+    from .citation_tracker import CitationIndex as DedicatedCitationIndex
+    from .reranker import RankedChunk, RerankedResult
+    from .retriever import RetrievedChunk
+except ImportError:  # direct script execution, not package import
+    from citation_tracker import CitationIndex as DedicatedCitationIndex
+    from reranker import RankedChunk, RerankedResult
+    from retriever import RetrievedChunk
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")

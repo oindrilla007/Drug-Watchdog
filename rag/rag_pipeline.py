@@ -46,10 +46,16 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-from context_assembler import AssembledContext, ContextAssembler, MLPrediction
-from query_expander     import QueryExpander, QueryExpansion
-from reranker           import RerankedResult, SourceWeightedReranker
-from retriever          import HybridRetriever, RetrievalResult
+try:
+    from .context_assembler import AssembledContext, ContextAssembler, MLPrediction
+    from .query_expander     import QueryExpander, QueryExpansion
+    from .reranker           import RerankedResult, SourceWeightedReranker
+    from .retriever          import HybridRetriever, RetrievalResult
+except ImportError:  # direct script execution, not package import
+    from context_assembler import AssembledContext, ContextAssembler, MLPrediction
+    from query_expander     import QueryExpander, QueryExpansion
+    from reranker           import RerankedResult, SourceWeightedReranker
+    from retriever          import HybridRetriever, RetrievalResult
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -326,11 +332,100 @@ class RAGPipeline:
             log.warning("Could not save output: %s", exc)
 
 
+# ─────────────────────── Module-level agent interface ────────────────────────
+
+# RAGRetrievalAgent (Phase 4) discovers this module by name and calls a flat
+# retrieve() on it. Everything below adapts this pipeline to that contract.
+
+# The retriever tags chunks with corpus names; the agent keys citations off
+# SOURCE_PREFIX ("FDA" / "FAERS" / "PubMed"). Anything unmapped becomes a
+# generic REF-n citation.
+_AGENT_SOURCE_MAP = {
+    "dailymed": "FDA",
+    "fda":      "FDA",
+    "faers":    "FAERS",
+    "pubmed":   "PubMed",
+    "drugbank": "Other",
+}
+
+_pipeline: "RAGPipeline | None" = None
+
+
+def get_pipeline(**kwargs) -> "RAGPipeline":
+    """Return the shared RAGPipeline singleton (lazy — init loads ~500 MB of models)."""
+    global _pipeline
+    if _pipeline is None:
+        _pipeline = RAGPipeline(**kwargs)
+    return _pipeline
+
+
+def _normalise_score(relevance_score: float) -> float:
+    """
+    Squash a reranker score into 0-1.
+
+    SourceWeightedReranker emits a raw cross-encoder logit (roughly -11 to +11)
+    plus a source and section bonus of up to 2.8. The agent filters citations
+    with `score >= min_score` on a 0-1 scale, so passing the logit through
+    unchanged would drop most relevant chunks. A logistic squash preserves the
+    ranking while putting the values on the scale the agent expects.
+    """
+    import math
+    return 1.0 / (1.0 + math.exp(-relevance_score))
+
+
+def retrieve(
+    drug_a:      str,
+    drug_b:      str,
+    top_k:       int   = CONTEXT_MAX_CHUNKS,
+    severity:    int   = 0,
+    confidence:  float = 0.0,
+    cyp_pathway: str   = "unknown",
+) -> list[dict]:
+    """
+    Flat retrieval entry point for RAGRetrievalAgent.
+
+    Runs the full pipeline and flattens AssembledContext.evidence_blocks into
+    the {source, score, text, meta} dicts the agent's _build_citations expects.
+
+    The ML fields only steer reranking and prompt assembly — they filter
+    nothing — so the neutral defaults are safe when the caller has no
+    prediction to pass.
+    """
+    prediction = MLPrediction(
+        drug_a            = drug_a,
+        drug_b            = drug_b,
+        severity          = severity,
+        confidence        = confidence,
+        cyp_pathway       = cyp_pathway,
+        model_used        = "none",
+        shap_top_features = [],
+    )
+
+    context, _timings = get_pipeline().run(drug_a, drug_b, prediction)
+
+    chunks: list[dict] = []
+    for block in context.evidence_blocks[:top_k]:
+        raw_source = (block.get("source") or "").lower()
+        chunks.append({
+            "source": _AGENT_SOURCE_MAP.get(raw_source, "Other"),
+            "score":  _normalise_score(float(block.get("relevance_score", 0.0))),
+            "text":   block.get("text", ""),
+            "meta": {
+                "citation_key": block.get("citation_key"),
+                "label":        block.get("doc_title"),
+                "section":      block.get("section"),
+                "url":          block.get("doc_url"),
+                "drugs":        block.get("drug_names", []),
+                "raw_source":   block.get("source"),
+            },
+        })
+    return chunks
+
+
 # ──────────────────────────── CLI smoke-test ─────────────────────────────────
 
 if __name__ == "__main__":
     import sys
-    from context_assembler import MLPrediction
 
     drug_a = sys.argv[1] if len(sys.argv) > 1 else "warfarin"
     drug_b = sys.argv[2] if len(sys.argv) > 2 else "aspirin"

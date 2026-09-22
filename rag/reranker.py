@@ -29,7 +29,10 @@ import numpy as np
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from retriever import RetrievedChunk, RetrievalResult
+try:
+    from .retriever import RetrievedChunk, RetrievalResult
+except ImportError:  # direct script execution, not package import
+    from retriever import RetrievedChunk, RetrievalResult
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
