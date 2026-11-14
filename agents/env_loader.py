@@ -1,7 +1,7 @@
 """
 Shared environment loader for standalone agent scripts.
 
-Agent files are often run from ``D:\drug-interaction-watchdog\agents`` during
+Agent files are often run from inside the ``agents/`` folder during
 local demos, so python-dotenv's default current-directory search can miss the
 project-root ``.env`` file. This helper anchors loading to the repository root.
 """

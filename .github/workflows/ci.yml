@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-# No pytest step: tests/ currently holds only empty placeholder files.
-# Add a pytest job here once those are filled in.
-
 jobs:
   python:
     name: Python compile check
@@ -25,6 +22,24 @@ jobs:
       # seconds instead of a multi-gigabyte dependency install.
       - name: Byte-compile all packages
         run: python -m compileall -q agents api rag ml ingestion
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # The tests cover the API, routing, citation and feature logic, which
+      # need only this light set, not the full ML stack in requirements.txt.
+      - name: Install test dependencies
+        run: pip install fastapi httpx pytest pandas numpy requests python-dotenv
+
+      - name: Run tests
+        run: pytest -q
 
   frontend:
     name: Frontend build
