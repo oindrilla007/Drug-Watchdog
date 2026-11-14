@@ -18,7 +18,7 @@ async def get_alerts(current_user: dict = Depends(get_current_user)):
         return {"alerts": alerts, "count": len(alerts)}
     except Exception as exc:
         log.error("Error loading alerts for %s: %s", patient_id, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not load alerts")
 
 
 @router.get("/all")
@@ -49,7 +49,7 @@ async def get_all_alerts(current_user: dict = Depends(get_current_user)):
         return {"alerts": alerts, "count": len(alerts)}
     except Exception as exc:
         log.error("Error loading all alerts for %s: %s", patient_id, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not load alerts")
 
 
 @router.put("/{alert_id}/acknowledge")
@@ -65,4 +65,4 @@ async def acknowledge_alert(
         return {"message": "Alert acknowledged", "alert_id": alert_id}
     except Exception as exc:
         log.error("Error acknowledging alert %s: %s", alert_id, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not acknowledge alert")

@@ -44,4 +44,4 @@ async def intake_image(
 
     except Exception as exc:
         log.error("Vision intake failed: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not read the image. Please try a clearer photo.")

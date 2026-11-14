@@ -60,7 +60,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
             "last_session_at":     ctx.last_session_at,
         }
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail="Patient profile not found")
     except Exception as exc:
         log.error("Error loading patient %s: %s", patient_id, exc)
         raise HTTPException(status_code=500, detail="Could not load patient profile")
@@ -82,7 +82,7 @@ async def create_profile(
         return {"message": "Profile created", "patient_id": patient_id}
     except Exception as exc:
         log.error("Error creating patient %s: %s", patient_id, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not create patient profile")
 
 
 @router.put("/me")
@@ -101,4 +101,4 @@ async def update_profile(
         return {"message": "Profile updated", "patient_id": patient_id}
     except Exception as exc:
         log.error("Error updating patient %s: %s", patient_id, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not update patient profile")

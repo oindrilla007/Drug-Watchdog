@@ -43,12 +43,22 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Only the frontends listed in ALLOWED_ORIGINS (comma-separated) may call the
+# API from a browser. Set it to your deployed frontend URL in production, e.g.
+#   ALLOWED_ORIGINS=https://your-app.vercel.app
+# Defaults to the local Next.js dev server.
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 app.include_router(auth.router,     prefix="/auth",     tags=["auth"])

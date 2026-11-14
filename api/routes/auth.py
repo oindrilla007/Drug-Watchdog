@@ -41,7 +41,7 @@ async def signup(req: SignupRequest):
         raise
     except Exception as exc:
         log.warning("Signup error: %s", exc)
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail="Signup failed. Check your email and password and try again.")
 
 
 @router.post("/login")

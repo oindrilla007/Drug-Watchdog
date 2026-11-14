@@ -74,4 +74,4 @@ async def analyse(
 
     except Exception as exc:
         log.error("Analysis failed for patient %s: %s", patient_id, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Analysis failed. Please try again.")
